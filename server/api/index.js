@@ -3,4 +3,5 @@ import games from "./games/index.js";
 
 export default new Router()
   .get("/health", (req, res) => res.status(200).json({}))
-  .use("/games", games);
+  .use("/games", games)
+  .use("/deletegames", (req, res) => res.status(200).json({}));

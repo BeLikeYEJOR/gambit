@@ -1,11 +1,41 @@
 import { useState } from "react";
 
+export let gameHostUUID = 0;
+
 export default function CreateLibbitGame() {
   const [code, setCode] = useState("");
   const [totalwords, setTotalWords] = useState("");
   const [wordstoguess, setWordsToGuess] = useState("");
   const [allowChooseScentance, setChooseScantance] = useState(false);
   const [allScentances, setScentances] = useState([""]);
+  const [CodeExists, SetCodeExists] = useState(false);
+
+  const createGame = () => {
+    gameHostUUID = crypto.randomUUID();
+    console.log(gameHostUUID);
+
+    let stored = JSON.parse(localStorage.getItem("allHostedGames") || "[]");
+
+    console.log(stored);
+
+    const duplicates = stored.filter((game) => game.gameCode === code);
+    if (duplicates.length > 0) {
+      SetCodeExists(true);
+      return;
+    } else {
+      SetCodeExists(false);
+    }
+
+    stored.push({
+      hostid: gameHostUUID,
+      gameCode: code,
+      gameMode: "Libbit",
+    });
+
+    localStorage.setItem("allHostedGames", JSON.stringify(stored));
+
+    window.location.href = `http://localhost:3000/host/${gameHostUUID}`;
+  };
 
   const getTotalWords = () => {
     if (totalwords < 1) {
@@ -38,17 +68,20 @@ export default function CreateLibbitGame() {
         <h1 className="mb-4 text-4lg font-extrabold leading-none tracking-tight text-gray-900 lg:text-6xl dark:text-white mr-auto ml-auto">
           Required
         </h1>
-        <legend>Game Code</legend>
-        <input
-          type="text"
-          className="input validator"
-          required
-          placeholder="AB34"
-          value={code.value}
-          onInput={(v) => setCode(v.target.value)}
-          minLength={4}
-          maxLength={4}
-        />
+        <fieldset className="fieldset">
+          <legend className="fieldset-legend">Game Code</legend>
+          <input
+            type="text"
+            className="input validator"
+            required
+            placeholder="AB34"
+            value={code.value}
+            onInput={(v) => setCode(v.target.value)}
+            minLength={4}
+            maxLength={4}
+          />
+          {CodeExists && <p className={`text-red-600 `}>Code Already exists</p>}
+        </fieldset>
         <legend>Words(Total)</legend>
         <input
           type="number"
@@ -80,7 +113,11 @@ export default function CreateLibbitGame() {
           Optional
         </h1>
         <label className="label">
-          <input type="checkbox" className="checkbox checkbox-primary" />
+          <input
+            type="checkbox"
+            className="checkbox checkbox-primary"
+            defaultChecked
+          />
           Rotate Judges
         </label>
         <label className="label">
@@ -128,6 +165,7 @@ export default function CreateLibbitGame() {
       <div className="card card-body bg-neutral m-4 flex-0 mt-auto">
         <button
           className="btn btn-primary btn-lg"
+          onClick={createGame}
           disabled={
             totalwords < 4 ||
             totalwords > 10 ||

@@ -14,7 +14,6 @@ export default function Home() {
 
   const handleJoins = () => {
     window.location.href = `${window.location.href}game/${code}`;
-    // console.log(window.location.href);
   };
 
   const createLibbitGame = () => {
